@@ -3,13 +3,13 @@ function generateReport() {
   const output = document.getElementById("output");
   output.innerHTML = "";
 
-  // New way to split blocks
-  const blocks = input.split(/(?=^.*?(Meeting page|█).*$)/gmi).filter(b => b.trim());
+  // Split blocks by "Meeting page" or "█", ensuring no empty datasets are included
+  const blocks = input.split(/(?=^.*?(Meeting page|█).*$)/gmi).filter(b => b.trim() && !b.includes("Failed or N/A") && !b.includes("N/A"));
 
   blocks.forEach((block, index) => {
     let title = `Test ${index + 1}`;
 
-    // Detect title: either starting with █ or "Meeting page"
+    // Detect title: either starting with "Meeting page" or "█"
     if (block.includes("Load /")) {
       const match = block.match(/Load\s+\/(\S+)/);
       if (match) title = `Load /${match[1]}`;
