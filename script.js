@@ -3,17 +3,18 @@ function generateReport() {
   const output = document.getElementById("output");
   output.innerHTML = "";
 
-  const blocks = input.includes("█") 
-    ? input.split(/(?=█)/g).filter((b) => b.trim())
-    : [input]; // Treat entire input as one block if no █
+  // New way to split blocks
+  const blocks = input.split(/(?=^.*?(Meeting page|█).*$)/gmi).filter(b => b.trim());
 
   blocks.forEach((block, index) => {
     let title = `Test ${index + 1}`;
+
+    // Detect title: either starting with █ or "Meeting page"
     if (block.includes("Load /")) {
       const match = block.match(/Load\s+\/(\S+)/);
       if (match) title = `Load /${match[1]}`;
     } else {
-      const titleMatch = block.match(/█\s+(.+)/);
+      const titleMatch = block.match(/█\s*(.+)/) || block.match(/(Meeting page.+)/i);
       if (titleMatch) title = titleMatch[1].trim();
     }
 
@@ -21,19 +22,18 @@ function generateReport() {
     const statusSummary = statusMatch ? "Passed (200 OK)" : "Failed or N/A";
 
     const timeMatch = block.match(/response time < (\d+)ms/);
-    const timeLimit = timeMatch ? timeMatch[1] : null;
-    const timeCheck = timeLimit ? `Under ${timeLimit}ms` : "N/A";
+    const timeCheck = timeMatch ? `Under ${timeMatch[1]}ms` : "N/A";
 
     const bodyCheck = /body is not empty/i.test(block) ? "Not empty" : "Empty";
 
-    const checks = block.match(/checks.*?:\s+([\d.]+%)\s+(\d+)\s+out of\s+(\d+)/);
-    const failedRequests = block.match(/http_req_failed.*?:\s+([\d.]+%)\s+(\d+)\s+out of\s+(\d+)/);
-    const dataReceived = block.match(/data_received.*?:\s+([\d.\w\s/]+)/);
-    const dataSent = block.match(/data_sent.*?:\s+([\d.\w\s/]+)/);
-    const httpReqs = block.match(/http_reqs.*?:\s+(\d+)/);
-    const iterations = block.match(/iterations.*?:\s+(\d+)/);
-    const vus = block.match(/vus.*?:\s+(\d+)/);
-    const vusMax = block.match(/vus_max.*?:\s+(\d+)/);
+    const checks = block.match(/checks.*?:\s+([\d.]+%)\s+(\d+)\s+out of\s+(\d+)/i);
+    const failedRequests = block.match(/http_req_failed.*?:\s+([\d.]+%)\s+(\d+)\s+out of\s+(\d+)/i);
+    const dataReceived = block.match(/data_received.*?:\s+([\d.\w\s/]+)/i);
+    const dataSent = block.match(/data_sent.*?:\s+([\d.\w\s/]+)/i);
+    const httpReqs = block.match(/http_reqs.*?:\s+(\d+)/i);
+    const iterations = block.match(/iterations.*?:\s+(\d+)/i);
+    const vus = block.match(/vus.*?:\s+(\d+)/i);
+    const vusMax = block.match(/vus_max.*?:\s+(\d+)/i);
 
     const metrics = [...block.matchAll(/([a-zA-Z0-9_.]+)\.*:\s+avg=([\d.msµskB]+).*?min=([\d.msµskB]+).*?med=([\d.msµskB]+).*?max=([\d.msµskB]+).*?p\(90\)=([\d.msµskB]+).*?p\(95\)=([\d.msµskB]+)/g)];
 
