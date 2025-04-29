@@ -90,3 +90,20 @@ function generateReport() {
     output.innerHTML += html;
   });
 }
+
+
+function downloadPDF() {
+  const element = document.getElementById("output");
+
+  // Fullscreen-style options
+  const opt = {
+    margin:       0,
+    filename:     'k6_test_report.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+
+  // Generate PDF
+  html2pdf().set(opt).from(element).save();
+}
